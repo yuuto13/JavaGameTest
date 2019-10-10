@@ -1,14 +1,14 @@
 //TilesName-SpriteX-SpriteY
-water1-0-0
-water2-1-0
-waterltc-2-0
-watert-3-0
-waterrtc-4-0
-grass1-5-0
-dirt1-6-0
-stone1-7-0
-sand1-8-0
-stone2-9-0
+0-water1-0-0
+1-water2-1-0
+2-waterltc-2-0
+3-watert-3-0
+4-waterrtc-4-0
+5-grass1-5-0
+6-dirt1-6-0
+7-stone1-7-0
+8-sand1-8-0
+9-stone2-9-0
 
 waterlt-0-1
 waterrt-1-1

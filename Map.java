@@ -69,6 +69,16 @@ public class Map {
 		}
 	}
 
+	public void removeTile(int x, int y) {
+		for(int i = 0; i < mappedTiles.size(); i++) {
+			MappedTile tile = mappedTiles.get(i);
+			if(tile.x == x && tile.y == y) {
+				mappedTiles.remove(i);
+				return;
+			}
+		}
+	}
+
 	public void saveMap(File mapFile) {
 		try {
 			PrintWriter printWriter = new PrintWriter(mapFile);

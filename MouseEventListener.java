@@ -21,6 +21,9 @@ public class MouseEventListener implements MouseListener, MouseMotionListener {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			game.leftClick(e.getX(), e.getY());
 		}
+		if(e.getButton() == MouseEvent.BUTTON3) {
+			game.rightClick(e.getX(), e.getY());
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) {}

@@ -21,6 +21,7 @@ public class Game extends JFrame implements Runnable{
 	private int gridSize = 16;
 	private int xZoom = 2;
 	private int yZoom = 2;
+	private int fps = 60;
 
 	private Canvas canvas = new Canvas();
 	private RenderHandler renderer;
@@ -29,6 +30,7 @@ public class Game extends JFrame implements Runnable{
 
 	private GameObject[] objects;
 	private Player player;
+	private AnimatedSprite[] animatedSprites;
 	
 	private SpriteSheet sheet;
 	private Tiles tiles;
@@ -49,14 +51,23 @@ public class Game extends JFrame implements Runnable{
 		tiles = new Tiles(new File("Tiles.txt"), sheet);
 		map = new Map(new File("Map.txt"), tiles);
 
-		// testImage = loadImage("resources/test_sprite_single.png");
-		// testSprite = new Sprite(testImage);
+		BufferedImage animatedImage = loadImage("resources/rat-and-bat.png");
+		SpriteSheet animatedSheet = new SpriteSheet(animatedImage, 32, 32, 0);
 
 		// Load Objects
-		objects = new GameObject[1];
-		player = new Player();
+		objects = new GameObject[3];
+		AnimatedSprite paSprite = new AnimatedSprite(animatedSheet, 0, 32*7, 32, 32, 10, 15);
+		player = new Player(paSprite);
 		objects[0] = player;
 
+		//Testing AnimatedSprite
+		animatedSprites = new AnimatedSprite[2];
+		animatedSprites[0] = new AnimatedSprite(animatedSheet, 0, 32*2, 32, 32, 10, 15);
+		animatedSprites[1] = new AnimatedSprite(animatedSheet, 0, 32*5, 32, 32, 10, 15);
+		for(int i = 0; i < animatedSprites.length; i++) {
+			objects[i+1] = animatedSprites[i];
+		}
+		
 		// Add Listeners
 		keyListener = new KeyBoardListener(new File("KeyMap.ini"));
 		mouseListener = new MouseEventListener(this);
@@ -71,12 +82,17 @@ public class Game extends JFrame implements Runnable{
 		Graphics graphics = bufferStrategy.getDrawGraphics();
 		super.paint(graphics);
 
+		//Test AnimatedSprite
+		for(int i = 0; i < animatedSprites.length; i++) {
+			renderer.renderSprite(animatedSprites[i], i*1024+512, i*512-1024, xZoom, yZoom, false);
+		}
+
 		map.renderMap(renderer, xZoom, yZoom, gridSize);
 		for(int i = 0; i < objects.length; i++) {
 			objects[i].render(renderer, xZoom, yZoom);
 		}
-		renderer.render(graphics);
 
+		renderer.render(graphics);
 		graphics.dispose();
 		bufferStrategy.show();
 		renderer.clear();
@@ -89,14 +105,14 @@ public class Game extends JFrame implements Runnable{
 			}
 		}
 		if(keyListener.save_map()) {
-			map.saveMap(new File("testMap.txt"));
+			map.saveMap(new File("Map.txt"));
 		}
 	}
 
 	public void run() {
 		BufferStrategy bufferStrategy = canvas.getBufferStrategy();
 		long lastTime = System.nanoTime();
-		double nanoToOneSecond = 1000000000.0 / 60;
+		double nanoToOneSecond = 1000000000.0 / fps;
 		double deltaSeconds = 0;
 
 		while(true) {
@@ -119,7 +135,6 @@ public class Game extends JFrame implements Runnable{
 			BufferedImage loadedImage = ImageIO.read(Game.class.getResource(path));
 			BufferedImage formattedImage = new BufferedImage(loadedImage.getWidth(), loadedImage.getHeight(),BufferedImage.TYPE_INT_RGB);
 			formattedImage.getGraphics().drawImage(loadedImage, 0, 0, null);
-
 			return formattedImage;
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -127,23 +142,21 @@ public class Game extends JFrame implements Runnable{
 		}
 	}
 
-	public KeyBoardListener getKeyListener() {
-		return keyListener;
-	}
-
-	public MouseEventListener getMouseListener() {
-		return mouseListener;
-	}
-
-	public RenderHandler getRenderer() {
-		return renderer;
-	}
-
 	public void leftClick(int x, int y) {
-		// System.out.println("(" + x + ", " + y + ")");
+		Rectangle mouseRectangle = new Rectangle(x, y, 1, 1);
+		for(int i = 0; i < objects.length; i++) {
+			objects[i].mouseClicked(renderer.getCamera());
+		}
+
 		x = (int) Math.floor((x + renderer.getCamera().x) / ((double) gridSize * xZoom));
 		y = (int) Math.floor((y + renderer.getCamera().y) / ((double) gridSize * yZoom));
 		map.setTile(6, x, y);
+	}
+
+	public void rightClick(int x, int y) {
+		x = (int) Math.floor((x + renderer.getCamera().x) / ((double) gridSize * xZoom));
+		y = (int) Math.floor((y + renderer.getCamera().y) / ((double) gridSize * yZoom));
+		map.removeTile(x, y);
 	}
 
 	public void mouseMove(int x, int y) {
@@ -152,6 +165,16 @@ public class Game extends JFrame implements Runnable{
 
 	public int getXZoom() { return xZoom; }
 	public int getYZoom() { return yZoom; }
+	public int getFPS() { return fps; }
+	public KeyBoardListener getKeyListener() {
+		return keyListener;
+	}
+	public MouseEventListener getMouseListener() {
+		return mouseListener;
+	}
+	public RenderHandler getRenderer() {
+		return renderer;
+	}
 
 	public static void main(String[] args) {
 		Game game = new Game();

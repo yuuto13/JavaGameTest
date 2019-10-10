@@ -13,12 +13,20 @@ public class RenderHandler {
 		pixels = ((DataBufferInt) view.getRaster().getDataBuffer()).getData();
 	}
 
-	private void setPixel(int pixel, int x, int y) {
-		if(x >= camera.x && y >= camera.y && x <= camera.x + camera.w && y <= camera.y + camera.h) {
-			int pixelIndex = (x - camera.x) + (y - camera.y) * view.getWidth();
-			if(pixelIndex < pixels.length && pixel != Game.alpha) {
-				pixels[pixelIndex] = pixel;
+	private void setPixel(int pixel, int x, int y, boolean isFixed) {
+		int pixelIndex = 0;
+		if(!isFixed) {
+			if(x >= camera.x && y >= camera.y && x <= camera.x + camera.w && y <= camera.y + camera.h) {
+				pixelIndex = (x - camera.x) + (y - camera.y) * view.getWidth();
+				
 			}
+		} else {
+			if(x >= 0 && y >= 0 && x <= camera.w && y <= camera.h) {
+				pixelIndex = x + y * view.getWidth();
+			}
+		}
+		if(pixelIndex < pixels.length && pixel != Game.alpha) {
+			pixels[pixelIndex] = pixel;
 		}
 	}
 
@@ -27,31 +35,32 @@ public class RenderHandler {
 		graphics.drawImage(view, 0, 0, view.getWidth(), view.getHeight(), null);
 	}
 
-	public void renderSprite(Sprite sprite, int xPosition, int yPosition, int xZoom, int yZoom) {
-		renderArray(sprite.getPixels(), sprite.getWidth(), sprite.getHeight(),  xPosition, yPosition, xZoom, yZoom);
+	public void renderSprite(Sprite sprite, int xPosition, int yPosition, int xZoom, int yZoom, boolean isFixed) {
+		renderArray(sprite.getPixels(), sprite.getWidth(), sprite.getHeight(),  xPosition, yPosition, xZoom, yZoom, isFixed);
 	}
 
-	public void renderImage(BufferedImage image, int xPosition, int yPosition, int xZoom, int yZoom) {
+	public void renderImage(BufferedImage image, int xPosition, int yPosition, int xZoom, int yZoom, boolean isFixed) {
 		int[] imagePixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-		renderArray(imagePixels, image.getWidth(), image.getHeight(), xPosition, yPosition, xZoom, yZoom);
+		renderArray(imagePixels, image.getWidth(), image.getHeight(), xPosition, yPosition, xZoom, yZoom, isFixed);
 	}
 
-	public void renderArray(int[] pixels, int width, int height, int xPosition, int yPosition, int xZoom, int yZoom) {
+	public void renderArray(int[] pixels, int width, int height, int xPosition, int yPosition, int xZoom, int yZoom, boolean isFixed) {
 		for(int y = 0; y < height; y++) {
 			for(int x = 0; x < width; x++) {
 				for(int j = 0; j < yZoom; j++) {
 					for(int i = 0; i < xZoom; i++) {
-						setPixel(pixels[x+y*width], x*xZoom+xPosition+i, y*yZoom+yPosition+j);
+						setPixel(pixels[x+y*width], x*xZoom+xPosition+i, y*yZoom+yPosition+j, isFixed);
 					}
 				}
 			}
 		}
 	}
 
-	public void renderRectangle(Rectangle rectangle, int xZoom, int yZoom) {
+	public void renderRectangle(Rectangle rectangle, int xZoom, int yZoom, boolean isFixed) {
+		if(rectangle == null) return;
 		int[] recPixels = rectangle.getPixels();
 		if(recPixels != null) {
-			renderArray(recPixels, rectangle.w, rectangle.h, rectangle.x, rectangle.y, xZoom, yZoom);
+			renderArray(recPixels, rectangle.w, rectangle.h, rectangle.x, rectangle.y, xZoom, yZoom, isFixed);
 		}
 	}
 

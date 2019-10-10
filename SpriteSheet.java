@@ -29,7 +29,7 @@ public class SpriteSheet {
 		int spriteID = 0;
 		for(int y = 0; y < SIZE_Y; y += gridSizeY) {
 			for(int x = 0; x < SIZE_X; x += gridSizeX) {
-				loadedSprites[spriteID] = new Sprite(this, x, y, spriteSizeX, spriteSizeY);
+				loadedSprites[spriteID] = new Sprite(this, new Rectangle(x, y, spriteSizeX, spriteSizeY));
 				spriteID++;
 			}
 		}
